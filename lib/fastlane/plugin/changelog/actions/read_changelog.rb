@@ -11,7 +11,7 @@ module Fastlane
         changelog_path = Helper::ChangelogHelper.ensure_changelog_exists(changelog_path)
 
         section_identifier = params[:section_identifier] unless params[:section_identifier].to_s.empty?
-        escaped_section_identifier = Regexp.escape(section_identifier[/\[(.*?)\]/, 1])
+        escaped_section_identifier = Regexp.escape(section_identifier[/\[?(.*?)\]?/, 1])
 
         excluded_markdown_elements = params[:excluded_markdown_elements]
 
@@ -31,7 +31,7 @@ module Fastlane
               end
             end
 
-            if line =~ /\#{2}\s?\[#{escaped_section_identifier}\]/
+            if line =~ /\#{2}\s?\[?#{escaped_section_identifier}\]?/
               found_section = true
             end
           end
@@ -86,12 +86,13 @@ module Fastlane
                                        env_name: "FL_READ_CHANGELOG_SECTION_IDENTIFIER",
                                        description: "The unique section identifier to read content of",
                                        is_string: true,
-                                       default_value: "[Unreleased]",
+                                       default_value: "Unreleased",
                                        optional: true,
-                                       verify_block: proc do |value|
-                                         UI.user_error!("Sections (##) in CHANGELOG format must be encapsulated in []") unless value.start_with?("[") && value.end_with?("]")
-                                         UI.user_error!("Sections (##) in CHANGELOG format cannot be empty") if value[/\[(.*?)\]/, 1].empty?
-                                       end),
+                                      #  verify_block: proc do |value|
+                                      #   #  UI.user_error!("Sections (##) in CHANGELOG format must be encapsulated in []") unless value.start_with?("[") && value.end_with?("]")
+                                      #    UI.user_error!("Sections (##) in CHANGELOG format cannot be empty") if value[/\[(.*?)\]/, 1].empty?
+                                      #  end
+                                       ),
           FastlaneCore::ConfigItem.new(key: :excluded_markdown_elements,
                                        env_name: "FL_READ_CHANGELOG_EXCLUDED_MARKDOWN_ELEMENTS",
                                        description: "Markdown elements you wish to exclude from the output",
